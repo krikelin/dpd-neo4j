@@ -1,0 +1,20 @@
+{
+  "name": "dpd-neo4j",
+  "version": "0.0.1",
+  "description": "Neo4J Resource for Deployd",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "deployd",
+    "neo4j",
+    "graph"
+  ],
+  "dependencies": {
+    "deployd": "*",
+    "neo4j": "*"
+  },
+  "author": "Alexander Forselius",
+  "license": "MIT"
+}

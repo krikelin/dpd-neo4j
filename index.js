@@ -1,0 +1,66 @@
+gvar Resource = require('deployd/lib/resource')
+  , Script = require('deployd/lib/script')
+  , Neo4J = require('neo4j')
+  , util = require('util');
+
+function Neo4JResource() {
+  Resource.apply(this, arguments);
+  if (this.config.username && this.config.url && this.config.password) {
+    this.db = new neo4j.GraphDatabase(this.config.url,       this.config.username, this.config.password);
+    
+  }
+}
+util.inherits(Neo4JResource, Resource);
+
+Neo4JResource.label = "neo4J";
+Neo4JResource.events = ["get", "match", "post"];
+
+Neo4JResource.basicDashboard = {
+  settings: [{
+      name: 'url'
+    , type: 'string'
+  }, {
+      name: 'username'
+    , type: 'string'
+  }, {
+      name: 'password'
+    , type: 'string'
+  }
+  ]
+};
+
+module.exports = Neo4JResource;
+
+Neo4JResource.prototype.clientGeneration = true;
+
+Neo4JResource.prototype.handle = function (ctx, next) {
+  var parts = ctx.url.split('/').filter(function(p) { return p; });
+
+  var result = {};
+
+  var domain = {
+      url: ctx.url
+    , parts: parts
+    , query: ctx.query
+    , body: ctx.body
+    , 'this': result
+    , setResult: function(val) {
+      result = val;
+    }
+  };
+
+  if (ctx.method === "POST" && this.events.post) {
+    this.db.insertNode(ctx.body, function (err, node) {
+      if (err) ctx.done(err);
+      ctx.done(err, node);
+    });
+  } else if (ctx.method === "GET" && this.events.get) {
+    this.db.readNode(parts[0], function (err, node) {
+      ctx.done(err, node);
+    });
+  } else {
+    next();
+  }
+
+  
+};
