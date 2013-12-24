@@ -1,0 +1,6 @@
+var Neo4JResource = require('./../index.js');  
+var r = new Neo4JResource();
+r.post({
+  username: 'krikelin'}, function (err, node) {
+  console.log(node);
+});

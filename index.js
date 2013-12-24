@@ -26,10 +26,11 @@
 
 
 var Resource = require('deployd/lib/resource')
+  , httpUtil = require('deployd/lib/util/http')
   , Script = require('deployd/lib/script')
-  , Neo4J = require('neo4j')
-  , util = require('util');
-
+  , neo4j = require('neo4j')
+  , util = require('util')
+  , path = require('path');
 function Neo4JResource() {
   Resource.apply(this, arguments);
   if (this.config.username && this.config.url && this.config.password) {
@@ -39,7 +40,7 @@ function Neo4JResource() {
 }
 util.inherits(Neo4JResource, Resource);
 
-Neo4JResource.label = "neo4J";
+Neo4JResource.label = "Neo4J";
 Neo4JResource.events = ["get", "match", "post"];
 
 Neo4JResource.basicDashboard = {
@@ -75,15 +76,19 @@ Neo4JResource.prototype.handle = function (ctx, next) {
       result = val;
     }
   };
-
-  if (ctx.method === "POST" && this.events.post) {
-    this.db.insertNode(ctx.body, function (err, node) {
-      if (err) ctx.done(err);
-      ctx.done(err, node);
-    });
-  } else if (ctx.method === "GET" && this.events.get) {
+  console.log(this.events);
+  if (ctx.method === "POST") {
+      var node =this.db.createNode(ctx.body);
+      node.save(function (err, node) {
+        if (err) ctx.done(err, {statusCode: 400});
+        ctx.done(err, {statusCode: 200, node: node.data});
+      });
+  } else if (ctx.method === "GET") {
+   
     this.db.readNode(parts[0], function (err, node) {
-      ctx.done(err, node);
+      console.log("T");    
+       if (err) ctx.done({statusCode: 400}, {statusCode: 200, node:node});
+      ctx.done(err, {statusCode: 200, node:node.data});
     });
   } else {
     next();

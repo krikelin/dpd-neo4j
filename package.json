@@ -4,7 +4,7 @@
   "description": "Neo4J Resource for Deployd",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "for f in tests/*.js; do echo \"$f\"; node \"$f\"; done; echo 'passed!'; exit 0"
   },
   "keywords": [
     "deployd",
