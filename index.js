@@ -78,18 +78,33 @@ Neo4JResource.prototype.handle = function (ctx, next) {
   };
   console.log(this.events);
   if (ctx.method === "POST") {
-      var node =this.db.createNode(ctx.body);
-      node.save(function (err, node) {
-        if (err) ctx.done(err, {statusCode: 400});
-        ctx.done(err, {statusCode: 200, node: node.data});
-      });
+      var type = ctx.body.type;
+      if (!type)
+        throw "No type specified";
+
+      switch(type) {
+         case "node":
+          var node = this.db.createNode(ctx.body.data);
+          node.save(function (err, node) {
+            if (err) ctx.done(err, {statusCode: 400});
+            ctx.done(err, {statusCode: 200, node: node.data});
+          });
+          break;
+       }
   } else if (ctx.method === "GET") {
-   
-    this.db.readNode(parts[0], function (err, node) {
-      console.log("T");    
-       if (err) ctx.done({statusCode: 400}, {statusCode: 200, node:node});
-      ctx.done(err, {statusCode: 200, node:node.data});
-    });
+    var type = ctx.body.type;
+     if (!type)
+        throw "No type specified";
+
+    switch (type) {   
+    case "node":
+      this.db.readNode(parts[0], function (err, node) {
+        console.log("T");    
+         if (err) ctx.done({statusCode: 400}, {statusCode: 200, node:node});
+        ctx.done(err, {statusCode: 200, node:node.data});
+      });
+      break;
+    }
   } else {
     next();
   }
