@@ -65,7 +65,7 @@ Neo4JResource.prototype.handle = function (ctx, next) {
   var parts = ctx.url.split('/').filter(function(p) { return p; });
 
   var result = {};
-
+  console.log(ctx.url);
   var domain = {
       url: ctx.url
     , parts: parts
@@ -87,7 +87,7 @@ Neo4JResource.prototype.handle = function (ctx, next) {
           var node = this.db.createNode(ctx.body.data);
           node.save(function (err, node) {
             if (err) ctx.done(err, {statusCode: 400});
-            ctx.done(err, {statusCode: 200, node: node.data});
+            ctx.done(err, {statusCode: 200, data:err});
           });
           break;
        }
@@ -98,11 +98,13 @@ Neo4JResource.prototype.handle = function (ctx, next) {
 
     switch (type) {   
     case "node":
-      this.db.readNode(parts[0], function (err, node) {
-        console.log("T");    
-         if (err) ctx.done({statusCode: 400}, {statusCode: 200, node:node});
-        ctx.done(err, {statusCode: 200, node:node.data});
-      });
+      if (domain.parts.length > 0) {
+  
+        this.db.getNodeById(parts[0], function (err, node) {
+          if (err) ctx.done(err, {statusCode: 400});          
+          ctx.done(err, {statusCode: 200, data: node.data});
+        });
+      }
       break;
     }
   } else {
